@@ -1,9 +1,16 @@
+import os
+
 import praw
 
-reddit = praw.Reddit(
-    client_id=secret.client_id,
-    client_secret=secret.api_key,
-    user_agent="SubTopicClustering:V1.0",
-)
+client_id = os.environ.get("CLIENT_ID")
+api_key = os.environ.get("API_KEY")
 
-print(reddit.read_only)
+print(client_id)
+
+# reddit = praw.Reddit(
+#     client_id=client_id,
+#     client_secret=api_key,
+#     user_agent="SubTopicClustering:V1.0",
+# )
+
+# print(reddit.read_only)
