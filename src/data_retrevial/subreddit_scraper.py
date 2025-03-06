@@ -34,7 +34,7 @@ def scrape_subreddit_posts(
     subreddit: str, sort: str = "month", limit: int = 50
 ) -> pd.DataFrame:
     """
-    Scrape posts from a specified subreddit.
+    Scrape posts from a specified subreddit, excluding pinned posts.
 
     Args:
         subreddit (str): Name of the subreddit to scrape.
@@ -52,11 +52,11 @@ def scrape_subreddit_posts(
     subreddit = reddit_conn.subreddit(subreddit)
 
     sort_options = {
-        "hot": lambda: subreddit.hot(limit=limit),
-        "month": lambda: subreddit.top(time_filter="month", limit=limit),
-        "year": lambda: subreddit.top(time_filter="year", limit=limit),
-        "week": lambda: subreddit.top(time_filter="week", limit=limit),
-        "new": lambda: subreddit.new(limit=limit),
+        "hot": lambda: subreddit.hot(limit=None),
+        "month": lambda: subreddit.top(time_filter="month", limit=None),
+        "year": lambda: subreddit.top(time_filter="year", limit=None),
+        "week": lambda: subreddit.top(time_filter="week", limit=None),
+        "new": lambda: subreddit.new(limit=None),
     }
 
     if sort not in sort_options:
@@ -66,14 +66,23 @@ def scrape_subreddit_posts(
 
     posts = sort_options[sort]()
 
-    posts_data = [
-        {
-            "Title": post.title,
-            "Post Text": post.selftext,
-            "ID": post.id,
-        }
-        for post in posts
-    ]
+    posts_data = []
+    for post in posts:
+        if not post.stickied:
+            posts_data.append(
+                {
+                    "Title": post.title,
+                    "Post Text": post.selftext,
+                    "ID": post.id,
+                    "Comments": [
+                        comment.body
+                        for comment in post.comments[:10]
+                        if not comment.stickied
+                    ],
+                }
+            )
+        if len(posts_data) >= limit:
+            break
 
     return pd.DataFrame(posts_data)
 
