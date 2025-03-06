@@ -1,16 +1,34 @@
 import os
 
 import praw
+from dotenv import load_dotenv
 
-client_id = os.environ.get("CLIENT_ID")
-api_key = os.environ.get("API_KEY")
 
-print(client_id)
+def api_connect():
+    """
+    Establishes a connection to the Reddit API using credentials stored in environment variables.
 
-# reddit = praw.Reddit(
-#     client_id=client_id,
-#     client_secret=api_key,
-#     user_agent="SubTopicClustering:V1.0",
-# )
+    Returns:
+        praw.Reddit: A Reddit API connection object.
 
-# print(reddit.read_only)
+    Required Environment Variables:
+        API_KEY: The secret API key for Reddit API authentication.
+        CLIENT_ID: The client ID for Reddit API authentication.
+    """
+    load_dotenv()
+    # Grab secret values from .env file
+    api_key = os.getenv("API_KEY")
+    client_id = os.getenv("CLIENT_ID")
+
+    reddit_conn = praw.Reddit(
+        client_id=client_id,
+        client_secret=api_key,
+        user_agent="SubTopicClustering:V1.0",
+    )
+
+    return reddit_conn
+
+
+if __name__ == "__main__":
+    reddit_conn = api_connect()
+    print(reddit_conn.read_only)
