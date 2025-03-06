@@ -1,5 +1,6 @@
 import os
 
+import pandas as pd
 import praw
 from dotenv import load_dotenv
 
@@ -29,6 +30,54 @@ def api_connect():
     return reddit_conn
 
 
-if __name__ == "__main__":
+def scrape_subreddit_posts(
+    subreddit: str, sort: str = "month", limit: int = 50
+) -> pd.DataFrame:
+    """
+    Scrape posts from a specified subreddit.
+
+    Args:
+        subreddit (str): Name of the subreddit to scrape.
+        sort (str): Sorting method for posts. Options: "month", "year", "week", "hot", "new". Default is "month".
+        limit (int): Maximum number of posts to retrieve. Default is 50.
+
+    Returns:
+        pd.DataFrame: DataFrame containing post data.
+
+    Raises:
+        ValueError: If an invalid sort option is provided.
+    """
     reddit_conn = api_connect()
-    print(reddit_conn.read_only)
+
+    subreddit = reddit_conn.subreddit(subreddit)
+
+    sort_options = {
+        "hot": lambda: subreddit.hot(limit=limit),
+        "month": lambda: subreddit.top(time_filter="month", limit=limit),
+        "year": lambda: subreddit.top(time_filter="year", limit=limit),
+        "week": lambda: subreddit.top(time_filter="week", limit=limit),
+        "new": lambda: subreddit.new(limit=limit),
+    }
+
+    if sort not in sort_options:
+        raise ValueError(
+            f"Invalid sort option. Choose from: {', '.join(sort_options.keys())}"
+        )
+
+    posts = sort_options[sort]()
+
+    posts_data = [
+        {
+            "Title": post.title,
+            "Post Text": post.selftext,
+            "ID": post.id,
+        }
+        for post in posts
+    ]
+
+    return pd.DataFrame(posts_data)
+
+
+if __name__ == "__main__":
+    posts = scrape_subreddit_posts("politics", "hot")
+    print(posts)
