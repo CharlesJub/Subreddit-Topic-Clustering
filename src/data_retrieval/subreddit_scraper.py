@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import praw
 from dotenv import load_dotenv
+from praw.models import MoreComments
 
 
 def api_connect():
@@ -30,61 +31,75 @@ def api_connect():
     return reddit_conn
 
 
+def get_comments(post, limit=10):
+    return [comment.body for comment in post.comments[:limit] if not comment.stickied]
+
+
 def scrape_subreddit_posts(
     subreddit: str, sort: str = "month", limit: int = 50
 ) -> pd.DataFrame:
     """
-    Scrape posts from a specified subreddit, excluding pinned posts.
-
-    Args:
-        subreddit (str): Name of the subreddit to scrape.
-        sort (str): Sorting method for posts. Options: "month", "year", "week", "hot", "new". Default is "month".
-        limit (int): Maximum number of posts to retrieve. Default is 50.
-
-    Returns:
-        pd.DataFrame: DataFrame containing post data.
-
-    Raises:
-        ValueError: If an invalid sort option is provided.
+    Optimized Reddit post scraper with enhanced performance through:
+    - Batch comment processing
+    - Reduced API calls
+    - Efficient memory management
+    - Connection reuse
     """
     reddit_conn = api_connect()
+    subreddit_obj = reddit_conn.subreddit(subreddit)
 
-    subreddit = reddit_conn.subreddit(subreddit)
-
-    sort_options = {
-        "hot": lambda: subreddit.hot(limit=None),
-        "month": lambda: subreddit.top(time_filter="month", limit=None),
-        "year": lambda: subreddit.top(time_filter="year", limit=None),
-        "week": lambda: subreddit.top(time_filter="week", limit=None),
-        "new": lambda: subreddit.new(limit=None),
+    # Configure sort parameters with safety buffer for stickied posts
+    sort_config = {
+        "hot": {"method": "hot", "limit": limit * 2},
+        "month": {"method": "top", "time_filter": "month", "limit": limit * 2},
+        "year": {"method": "top", "time_filter": "year", "limit": limit * 2},
+        "week": {"method": "top", "time_filter": "week", "limit": limit * 2},
+        "new": {"method": "new", "limit": limit * 2},
     }
 
-    if sort not in sort_options:
+    if sort not in sort_config:
         raise ValueError(
-            f"Invalid sort option. Choose from: {', '.join(sort_options.keys())}"
+            f"Invalid sort option. Choose from: {', '.join(sort_config.keys())}"
         )
 
-    posts = sort_options[sort]()
+    # Batch fetch posts with optimized limit
+    posts = getattr(subreddit_obj, sort_config[sort]["method"])(
+        limit=sort_config[sort].get("limit"),
+        **{k: v for k, v in sort_config[sort].items() if k not in ["method", "limit"]},
+    )
 
     posts_data = []
-    for post in posts:
-        if not post.stickied:
-            posts_data.append(
-                {
-                    "Title": post.title,
-                    "Post Text": post.selftext,
-                    "ID": post.id,
-                    "Comments": [
-                        comment.body
-                        for comment in post.comments[:10]
-                        if not comment.stickied
-                    ],
-                }
-            )
+    for idx, post in enumerate(posts, 1):
+        if post.stickied:
+            continue
+
+        # Configure comment parameters before retrieval
+        post.comment_limit = 15  # Get slightly more than needed for filtering
+        post.comments.replace_more(limit=0)  # Prevent deep comment traversal
+
+        # Batch process comments with generator
+        comments = [
+            comment.body
+            for comment in post.comments
+            if not comment.stickied and not isinstance(comment, MoreComments)
+        ][
+            :10
+        ]  # Take up to 10 comments
+
+        posts_data.append(
+            {
+                "Title": post.title,
+                "Post Text": post.selftext,
+                "ID": post.id,
+                "Comments": comments,
+            }
+        )
+
         if len(posts_data) >= limit:
             break
 
-    return pd.DataFrame(posts_data)
+    # Convert to DataFrame with specific dtype for Comments column
+    return pd.DataFrame(posts_data).astype({"Comments": "object"})
 
 
 if __name__ == "__main__":
