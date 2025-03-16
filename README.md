@@ -2,6 +2,8 @@
 
 A Python tool that scrapes Reddit posts from specified subreddits, clusters them into coherent topics using NLP techniques, and generates human-readable topic names and descriptions using LLMs.
 
+![Example dashboard](https://raw.githubusercontent.com/CharlesJub/Subreddit-Topic-Clustering/refs/heads/main/streamlit_example.png)
+
 ## Features
 
 - **Reddit Data Retrieval**: Scrape posts and comments from any subreddit
@@ -57,6 +59,7 @@ streamlit run src/app.py
 ```
 
 The Streamlit interface provides:
+
 - Customizable subreddit selection
 - Multiple sorting options (hot, top posts by time period, new)
 - Adjustable post limit
