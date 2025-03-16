@@ -91,29 +91,3 @@ Sample Posts by Topic:
 Election Fraud Claims: Trump continues to push election fraud narrative despite court losses
 Voting Rights Legislation: Senate to vote on new voting rights bill next week
 ```
-
-## Requirements
-
-- Python 3.8+
-- Reddit API credentials
-- Ollama
-- Required Python packages:
-  - ollama
-  - pandas
-  - praw
-  - python-dotenv
-  - bertopic
-  - hdbscan
-  - sentence-transformers
-  - umap-learn
-  - nltk
-  - emoji
-  - contractions
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
