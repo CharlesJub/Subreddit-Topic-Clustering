@@ -8,6 +8,7 @@ A Python tool that scrapes Reddit posts from specified subreddits, clusters them
 - **Natural Language Processing**: Process and clean text data for analysis
 - **Topic Modeling**: Identify meaningful topic clusters with BERTopic
 - **LLM Summaries**: Generate concise topic names and descriptions using Ollama's LLM integration
+- **Interactive Visualization**: Explore topics and posts through an intuitive Streamlit web interface
 
 ## Installation
 
@@ -37,6 +38,8 @@ A Python tool that scrapes Reddit posts from specified subreddits, clusters them
 
 ## Usage
 
+### Command Line Interface
+
 Run the main script to analyze a subreddit:
 
 ```bash
@@ -45,17 +48,39 @@ python src/main.py
 
 By default, this will analyze the "politics" subreddit with posts from the past month. To modify these settings, edit the parameters in `main.py`.
 
+### Streamlit Web Interface
+
+For a more interactive experience, run the Streamlit app:
+
+```bash
+streamlit run src/app.py
+```
+
+The Streamlit interface provides:
+- Customizable subreddit selection
+- Multiple sorting options (hot, top posts by time period, new)
+- Adjustable post limit
+- Choice of LLM models for topic summarization
+- Interactive visualizations including:
+  - Topic distribution charts
+  - Word clouds for each topic
+  - Expandable post and comment previews
+  - Searchable data table
+
 ## Project Structure
 
 ```
 src/
-├── main.py                        # Main application logic
+├── app.py                         # Streamlit web application
+├── main.py                        # Command-line application logic
 ├── data_retrieval/
 │   └── subreddit_scraper.py       # Reddit API handling
 ├── data_prep/
 │   └── transform.py               # Text preprocessing
-└── modeling/
-    └── clustering.py              # Topic modeling logic
+├── modeling/
+│   └── clustering.py              # Topic modeling logic
+└── summarization/
+    └── topic_summarizer.py        # LLM-based topic summarization
 ```
 
 ## How It Works
@@ -64,10 +89,11 @@ src/
 2. **Data Preparation**: Cleans and preprocesses text (removing stopwords, lemmatization, etc.)
 3. **Topic Modeling**: Uses BERTopic with UMAP and HDBSCAN to cluster similar posts
 4. **Topic Interpretation**: Employs Llama 3.2 to generate human-readable topic names and descriptions
+5. **Visualization**: Presents results through interactive charts and tables (Streamlit interface)
 
 ## Configuration
 
-The main parameters can be adjusted in `main.py`:
+The main parameters can be adjusted in `main.py` or through the Streamlit interface:
 
 - **Subreddit**: Change the subreddit name (default: "politics")
 - **Time Period**: Choose from "hot", "month", "year", "week", or "new"
