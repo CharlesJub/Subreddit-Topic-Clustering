@@ -1,0 +1,100 @@
+2025-03-16 15:05:47,826 - reddit_topic_explorer - INFO - Starting analysis for r/television with 150 posts
+2025-03-16 15:06:32,051 - reddit_topic_explorer - ERROR - Error during analysis: name 'generate_single_topic_summary' is not defined
+Traceback (most recent call last):
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\src\app.py", line 195, in <module>
+    topic_summaries = generate_summaries_with_progress(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\src\app.py", line 184, in generate_summaries_with_progress
+    summary = generate_single_topic_summary(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'generate_single_topic_summary' is not defined
+2025-03-16 15:12:22,168 - reddit_topic_explorer - ERROR - Error during analysis: Cannot hash argument 'topic_model' (of type `bertopic._bertopic.BERTopic`) in 'fit_transform_topics'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_data
+def fit_transform_topics(_topic_model, ...):
+    ...
+```
+            
+Traceback (most recent call last):
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 625, in _to_bytes
+    reduce_data = obj.__reduce__()
+                  ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\copyreg.py", line 76, in _reduce_ex
+    raise TypeError(f"cannot pickle {cls.__name__!r} object")
+TypeError: cannot pickle 'function' object
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 448, in _make_value_key
+    update_hash(
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 162, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 345, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 327, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 630, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 345, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 327, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 627, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableTypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\src\app.py", line 131, in <module>
+    topics, probs = model.fit_transform_topics(topic_model, df["text"])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 217, in __call__
+    return self._get_or_create_cached_value(args, kwargs, spinner_message)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 232, in _get_or_create_cached_value
+    value_key = _make_value_key(
+                ^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 456, in _make_value_key
+    raise UnhashableParamError(cache_type, func, arg_name, arg_value, exc)
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\cache_utils.py", line 448, in _make_value_key
+    update_hash(
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 162, in update_hash
+    ch.update(hasher, val)
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 345, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 327, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 630, in _to_bytes
+    self.update(h, item)
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 345, in update
+    b = self.to_bytes(obj)
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 327, in to_bytes
+    b = b"%s:%s" % (tname, self._to_bytes(obj))
+                           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\charl\Desktop\Subreddit Topic Clustering\.venv\Lib\site-packages\streamlit\runtime\caching\hashing.py", line 627, in _to_bytes
+    raise UnhashableTypeError() from ex
+streamlit.runtime.caching.cache_errors.UnhashableParamError: Cannot hash argument 'topic_model' (of type `bertopic._bertopic.BERTopic`) in 'fit_transform_topics'.
+
+To address this, you can tell Streamlit not to hash this argument by adding a
+leading underscore to the argument's name in the function signature:
+
+```
+@st.cache_data
+def fit_transform_topics(_topic_model, ...):
+    ...
+```
+            
+
