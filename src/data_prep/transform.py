@@ -1,50 +1,59 @@
 import re
 
+import contractions
 import emoji
 import pandas as pd
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 
 
 def create_corpus(row):
-    """ """
-    components = [
-        row["Title"],
-        str(row["Post Text"]),
-        *row["Comments"],  # Unpack the list of comments
-    ]
+    """
+    Create a corpus from a row of data.
+
+    This function combines the title, post text, and comments from a given row
+    into a single string, filtering out any None values.
+
+    Args:
+        row (dict): A dictionary containing 'title', 'post text', and 'comments' keys.
+
+    Returns:
+        str: A single string representing the corpus for the given row.
+    """
+    components = [row["title"], str(row["post text"]), *row["comments"]]
     return " ".join(filter(None, components))
 
 
-def clean_text(posts: pd.Dataframe):
-    posts["Corpus"] = posts.apply(create_corpus, axis=1)
+def clean_markdown(text):
+    # Remove bold/italic/strikethrough
+    text = re.sub(r"\*{1,3}|_{1,3}|~{2}", "", text)
+    # Convert markdown links to plain text
+    text = re.sub(r"\[(.*?)\]\(.*?\)", r"\1", text)
+    return text
 
 
-def normalize_text(row):
-    # Remove emojis
-    clean_text = emoji.replace_emoji(row["Corpus"], replace="")
+def remove_emoji(text):
+    return emoji.demojize(text, delimiters=(" ", " "))
 
-    # Convert to lowercase
-    clean_text = clean_text.lower()
 
-    # Remove punctuation
-    clean_text = re.sub(r"[^\w\s]", "", clean_text)
+def expand_contractions(text):
+    return contractions.fix(text)
 
-    lemmatizer = WordNetLemmatizer()
 
-    # Tokenize the text
-    words = word_tokenize(clean_text)
+lemmatizer = WordNetLemmatizer()
+custom_stopwords = set(stopwords.words("english")).union(
+    {"reddit", "subreddit", "mod", "op", "http", "https"}
+)
 
-    # Remove stop words and lemmatize
-    base_stopwords = set(stopwords.words("english"))
-    clean_words = [
-        lemmatizer.lemmatize(word, pos="v")
-        for word in words
-        if word not in base_stopwords
+
+def preprocess(text):
+    text = clean_markdown(text)
+    text = remove_emoji(text)
+    text = expand_contractions(text)
+    text = re.sub(r"\W", " ", text.lower())
+    tokens = [
+        lemmatizer.lemmatize(word)
+        for word in text.split()
+        if word not in custom_stopwords and len(word) > 2
     ]
-
-    # Join the words back into a string
-    clean_text = " ".join(clean_words)
-
-    return clean_text
+    return " ".join(tokens)

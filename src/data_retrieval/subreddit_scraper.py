@@ -36,7 +36,7 @@ def get_comments(post, limit=10):
 
 
 def scrape_subreddit_posts(
-    subreddit: str, sort: str = "month", limit: int = 50
+    subreddit: str, sort: str = "month", limit: int = 100
 ) -> pd.DataFrame:
     """
     Optimized Reddit post scraper with enhanced performance through:
@@ -99,7 +99,12 @@ def scrape_subreddit_posts(
             break
 
     # Convert to DataFrame with specific dtype for Comments column
-    return pd.DataFrame(posts_data).astype({"Comments": "object"})
+    df = pd.DataFrame(posts_data).astype({"Comments": "object"})
+
+    # Standardize column names to lowercase
+    df.columns = df.columns.str.lower()
+
+    return df
 
 
 if __name__ == "__main__":
